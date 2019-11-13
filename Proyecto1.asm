@@ -1,5 +1,6 @@
 %include "Helpers.asm"
 
+; Seccion de informacion
 SECTION .data
     
     letras equ 26
@@ -19,8 +20,19 @@ SECTION .text
     global _start
 
 _start:
-    mov cx, [cantLetras]
+    
+    mov cx, 0                   ; Inicio del ciclo para establece los nodos iniciales
+    
     loop1:
+        
+        ; Logica
         print_digit rcx
-        loop loop1
-    exit
+        
+        inc cx                  ; Incrementa el cx
+        
+        cmp cx, letras          ; Lo comparamos para ver si tenemos que salir
+        jne loop1               ; si es 26, entonces terminamos
+        
+        
+    
+    exit                        ; Cierra el programa

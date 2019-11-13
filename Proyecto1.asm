@@ -49,9 +49,6 @@ _start:
 
         print_digit rax
 
-
-
-
         ; Procedimiento para el for
         break:
         inc cx                  ; Incrementa el cx
@@ -60,8 +57,6 @@ _start:
         jne loop1               ; si es 26, entonces terminamos
 
     ; Aqui sigue el codigo
-
-
 
 
     exit                        ; Cierra el programa

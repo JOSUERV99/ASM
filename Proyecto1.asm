@@ -75,7 +75,7 @@ _start:
         fstp dword [r9] ; Guarda la frecuencia en el inicio del nodo
 
         mov [r9+4], r8
-        
+
 
         ; Procedimiento para el for
         inc cx                  ; Incrementa el cx

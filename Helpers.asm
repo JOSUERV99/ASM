@@ -24,6 +24,20 @@ SECTION .bss
     pop rax
 %endmacro
 
+; Macro para obtener la direccion de un nodo
+%macro get_node_addr 3
+
+    push rbx                        ; Guarda el valor de rbx ya que se va a modificar
+     
+    mov rax, %1                     ; Mueve el # de nodo al rax
+    mov rbx, %2                     ; Mueve el tamano del nodo de rbx
+    mul rbx                         ; Realiza la multiplicacion
+    add rax, %3                     ; Y se suma donde empieza el array completo
+    
+    pop rbx                         ; Restaura el valor del rbx
+
+%endmacro
+
 ; Macro para cerrar el programa
 %macro exit 0
     

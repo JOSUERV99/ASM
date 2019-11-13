@@ -185,14 +185,16 @@ int main()
         lastNode = i;
     }
 
+    // Innecesario en assembly, ya que se reservo en el bss
+    for (int i = 0; i < LETTERS; ++i)
+        forest[i] = (Forest)malloc(sizeof(struct _forest));
+
     // Carga los punteros en el bosque
     for (int i = 0; i < LETTERS; i++)
     {
-        // Obtiene el nodo
+        // Obtiene los dos nodos
         Node pointer = nodes[i];
-
-        // Innecesario en assembly, ya que se reservo en el bss
-        Forest node = (Forest)malloc(sizeof(struct _forest));
+        Forest node = forest[i];
 
         // Guarda las relaciones
         node->frequency = pointer->frequency;
@@ -236,7 +238,7 @@ int main()
 
     // Imprime el arbol
     // P.D. Ignoren el primer 1
-    //printCodes(huffman, 1);
+    printCodes(huffman, 1);
 
     char *codes = "11011000001100";
     findCode(huffman, codes);

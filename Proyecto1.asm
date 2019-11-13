@@ -27,7 +27,7 @@ _start:
     loop1:
 
         ; Logica
-        mov rax, 0
+        xor rax, rax
 
         ; Calcula la direccion del nodo que se esta guarda
         mov eax, ecx    ; Se multiplica al nodo actual el tamano de cada nodo
@@ -47,16 +47,41 @@ _start:
         mov eax, 97
         add eax, ecx                     ; Suma 97 al contador
 
-        print_digit rax
+        mov [r8+4], rax                  ; Ponemos el caracter en el nodo
+        mov [lastNode], rcx                ; Guardamos la posicion del ultimo nodo
 
         ; Procedimiento para el for
-        break:
         inc cx                  ; Incrementa el cx
 
         cmp cx, letras          ; Lo comparamos para ver si tenemos que salir
         jne loop1               ; si es 26, entonces terminamos
 
     ; Aqui sigue el codigo
+    mov cx, 0       ; Reinicia el loop
+    loop2:
+        ; Cargar los punteros en el bosque
+        ; Logica
+        xor rax, rax
+
+        ; Calcula la direccion del nodo que se esta guarda
+        mov eax, ecx    ; Se multiplica al nodo actual el tamano de cada nodo
+        mov ebx, node
+        mul ebx
+        mov r8, rax
+        add r8, tree   ; Y se le suma la direccion de memoria del primer nodo
+
+        mov r9, [nodeForest]
+
+
+
+
+        ; Procedimiento para el for
+        inc cx                  ; Incrementa el cx
+
+        cmp cx, letras          ; Lo comparamos para ver si tenemos que salir
+        jne loop1               ; si es 26, entonces terminamos
+
+
 
 
     exit                        ; Cierra el programa

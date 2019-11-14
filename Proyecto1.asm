@@ -77,21 +77,64 @@ _start:
         cmp cx, LETRAS_TOTALES  ; Lo comparamos para ver si tenemos que salir
         jne loop2               ; si es 26, entonces terminamos
 
-    mov r10, INFINITO
-    call findSmallest
-    mov r10, r15
-    mov r14, r15
-    
-    fld dword [r15]
-    call findSmallest
+    while:
+
+        mov r10, INFINITO   ; Metemos el caracter mas pequeno que no nos sirve
+        call findSmallest   ; llama la funcion
+        mov r10, r15        ; Guarda el resultado en el r10
+        mov r14, r15        ; Duplica el valor, para no perderlo
+
+        call findSmallest   ; cambia la condicion del ciclo
+
+        finit
+
+        mov r13, [lastNode] ; Incrementa lastNode
+        inc r13
+        mov [lastNode], r13
+
+        get_node_addr r13, NODE_TREE, tree
+
+        fld dword [r14]     ; Sumar las 2 frecuencias mas pequennas
+        fld dword [r15]
+        fadd
+        fstp dword [rax]    ; Guardarlas en current Node
+
+        mov r9, [r14 + 4]
+        mov [rax+21], r9   ; Colocar hijo derecho
+
+        mov r9, [r15 + 4]
+        mov [rax+13], r9   ; Colocar hijo izquierdo
+
+        mov r9, [r14 + 4]
+        mov [r9 + 5], rax    ; Colocarle el padre a r14  (smallest 1)
+
+        mov r9, [r15 + 4]
+        mov [r9 + 5], rax    ; Colocarle el padre a r15 (smallest 2)
+
+        fld dword [rax]
+        fstp dword [r15]
+        mov [r15 + 4],rax
+
+        ; PRUEBAS
+        mov rax, [r15 + 4]
+        mov rbx, [rax + 21]
+
+        fld dword [rbx]
+
+        mov rbx, [rbx + 4]
+        print_digit rbx
+
+        b:
+
+
     
     ; En este momento, r14 tiene el menor y r15 el segundo menor
-    mov r14, [r14 + 4]
-    mov r14, [r14 + 4]
-    print_digit r14
-    mov r15, [r15 + 4]
-    mov r15, [r15 + 4]
-    print_digit r15
+    ;mov r14, [r14 + 4]
+    ;mov r14, [r14 + 4]
+    ;print_digit r14
+    ;mov r15, [r15 + 4]
+    ;mov r15, [r15 + 4]
+    ;print_digit r15
 
     exit                        ; Cierra el programa
     
@@ -112,7 +155,7 @@ findSmallest:
         fcomip                                  ; y la compara con el valor no deseado
         fstp
         
-        a:
+
         je continueLoopFindSmallest             ; y si son igual, salta
         
         cmp r15, 0                              ; Revisa si ya tenemos un nodo

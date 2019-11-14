@@ -68,127 +68,68 @@ _start:
         fld dword [rax]             ; Carga la frecuencia a la pila
         fstp dword [r9]             ; Guarda la frecuencia en el inicio del nodo
 
-        mov [r9 + 4], rax             ; Guarda el puntero al nodo del arbol
+        mov [r9 + 4], rax           ; Guarda el puntero al nodo del arbol
 
         ; Procedimiento para el for
         inc cx                  ; Incrementa el cx
         add r9, NODE_FOREST     ; Salta al siguiente nodo del bosque
 
-        cmp cx, LETRAS_TOTALES          ; Lo comparamos para ver si tenemos que salir
+        cmp cx, LETRAS_TOTALES  ; Lo comparamos para ver si tenemos que salir
         jne loop2               ; si es 26, entonces terminamos
 
-    ;push 100
-    ;call findSmallest
-    ;print_digit rdx
-    ;pop rax
+    mov r10, INFINITO
+    call findSmallest
+    mov r10, r15
+    mov r14, r15
+    
+    fld dword [r15]
+    call findSmallest
+    
+    ; En este momento, r14 tiene el menor y r15 el segundo menor
 
     exit                        ; Cierra el programa
     
-; Retorna nodo con la menor frecuencia
+    
+; Busca el nodo con menor frecuencia en el bosque
 findSmallest:
     
-    finit                   ; Limpia la pila de punto flotante
-
-    xor edx, edx            ; Usa el rdx como puntero al menor
-    xor ecx, ecx            ; y el ecx como contador
+    xor r15, r15                ; Usemos r15 para nodo
+    xor rcx, rcx                ; y el rcx para llevar el contador
     
-    fld1                    ; Agrega un -1 a la pila para comparacion
-    fchs
-    
-    while1:
-    
-
-        ; Calcula la direccion del nodo que se esta guarda
-        mov eax, ecx    ; Se multiplica al nodo actual el tamano de cada nodo
-        mov ebx, NODE_FOREST
-        mul ebx
-        add eax, forest                 ; Y se le suma la direccion de memoria del primer nodo
+    ; Ciclo para buscar el menor
+    loopFindSmallest:
+        
+        get_node_addr rcx, NODE_FOREST, forest  ; Obtiene la direccion del nodo en el bosque
+        
+        fld dword [r10]
+        fld dword [eax]                         ; Carga la frecuencia actual
+        fcomip                                  ; y la compara con el valor no deseado
+        fstp
         
         a:
-        fld dword [eax]                 ; Mueve la frencuencia del nodo actual a la pila
-        fcomip                          ; Revisa si el valor actual es un menos 1
+        je continueLoopFindSmallest             ; y si son igual, salta
         
-        jne continue                    ; Si no es, continua
+        cmp r15, 0                              ; Revisa si ya tenemos un nodo
+        je setSmallest
         
-        inc ecx                         ; Si, incrementa el contador del nodos
-        jmp while1                      ; y repite el ciclo
+        fld dword [eax]                         ; Carga el valor del actual junto con el menor encontrado antes
+        fld dword [r15d]
+        fcomip                                  ; Y los compara
+        fstp
         
-    continue:
-        mov edx, ecx                    ; Guarda el valor del minimo como el contador
-        cmp edx, ebx                    ; Revisa si el valor no es el mismo para comparar
-        je recalculate                  ; Si es, tiene que recalcularlo
-        mov ecx, 0x01                   ; Resetea el count en 1
-        jmp next                        ; Si es diferente, continua
+        jb continueLoopFindSmallest             ; Si el es mayor, ignora
+                
+        ; Guarda el valor del nodo actual no esta establecido ninguno
+        setSmallest:
+            mov r15, rax
         
-    ; Recalcula el nodo de menor valor
-    recalculate:
-        inc ecx                         ; Apunta al siguiente nodo
-        
-        while2:
+        ; Continua el ciclo
+        continueLoopFindSmallest:
+            inc rcx
+            cmp rcx, LETRAS_TOTALES
+            jne loopFindSmallest
             
-            ; Calcula la direccion del nodo que se esta guarda
-            mov eax, ecx                    ; Se multiplica al nodo actual el tamano de cada nodo
-            mov ebx, NODE_FOREST
-            mul ebx
-            add eax, forest                 ; Y se le suma la direccion de memoria del primer nodo
-            
-            fld dword [eax]             ; Mueve la frencuencia del nodo actual a la pila
-            fcomip                          ; Revisa si el valor actual es un menos 1                          ; Revisa si el valor actual es un menos 1
-            
-            jne continue2                   ; Si no es, continua
-            
-            inc ecx                         ; Si, incrementa el contador del nodos
-            jmp while2                      ; y repite el ciclo
-        
-        continue2:
-            mov edx, ecx                    ; Guarda el valor de minimo
-            mov ecx, 0x01                   ; Resetea el count en 1
-            jmp next                        ; y sigue
-            
-    ; Encuentra el menor del tood
-    next:
+    fstp
+
+    ret                         ; Retorna la funcion
     
-        cmp ecx, LETRAS_TOTALES                 ; Si llego al maximo de nodos
-        je retMe                            ; Retorna del todo
-    
-        ; Calcula la direccion del nodo que se esta guarda
-        mov eax, ecx    ; Se multiplica al nodo actual el tamano de cada nodo
-        mov ebx, NODE_FOREST
-        mul ebx
-        add eax, forest                 ; Y se le suma la direccion de memoria del primer nodo
-        
-        fld dword [eax]              ; Carga su frencuencia en la pila
-        fcomip                              ; y la compara con el -1
-        je skip                             ; y si es -1, ingora el resto
-        
-        cmp ecx, [rsp + 8]                  ; Revisa si no es el que no se quiere
-        je skip                             ; y si es -1, ingora el resto
-        
-        fld dword [eax]              ; Carga su frencuencia en la pila
-    
-        ; Calcula la direccion del nodo que se esta guarda
-        mov eax, edx    ; Se multiplica al nodo actual el tamano de cada nodo
-        mov ebx, NODE_FOREST
-        mul ebx
-        add eax, forest                 ; Y se le suma la direccion de memoria del primer nodo
-        
-        fld dword [eax]              ; y lo agrega a la pila
-        
-        eval:
-            fcomip                          ; Compara los dos valores
-            jae cool
-            jmp skip   
-        
-        cool:
-            mov edx, ecx                    ; Guarda el valor actual
-            jmp skip    
-        
-        skip:
-            fcomp                           ; Limpia la pila
-            inc ecx                         ; Apunta al siguiente nodo
-            jmp next                        ; y sigue el ciclo
-        
-    ; Retorna la funcion
-    retMe:
-        finit
-        ret

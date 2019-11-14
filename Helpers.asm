@@ -1,3 +1,7 @@
+SECTION .data
+    
+    INFINITO: dd 100.00         ; Valor de infinito
+
 SECTION .bss
 
     ; Para la impresion de digitos
@@ -22,6 +26,18 @@ SECTION .bss
     pop rcx
     pop rbx
     pop rax
+%endmacro
+
+; Carga infinito a la unidad de punto flotante
+%macro load_infinity 0
+
+    push rax
+
+    mov eax, INFINITO
+    fld dword [eax]
+    
+    pop rax
+    
 %endmacro
 
 ; Macro para obtener la direccion de un nodo

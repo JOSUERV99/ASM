@@ -86,6 +86,12 @@ _start:
     call findSmallest
     
     ; En este momento, r14 tiene el menor y r15 el segundo menor
+    mov r14, [r14 + 4]
+    mov r14, [r14 + 4]
+    print_digit r14
+    mov r15, [r15 + 4]
+    mov r15, [r15 + 4]
+    print_digit r15
 
     exit                        ; Cierra el programa
     

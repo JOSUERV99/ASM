@@ -55,8 +55,6 @@ _start:
         jne loop1                       ; si es 26, entonces terminamo
 
 
-
-
     ; Aqui sigue el codigo
     xor rcx, rcx                    ; Reinicia el loop
     mov r9, forest                  ; Obtenemos la direccion del forest para iniciar los punteros
@@ -81,8 +79,9 @@ _start:
         jne loop2               ; si es 26, entonces terminamos
 
 
-    while:
+    mov rdx, 0
 
+    while:
         mov r10, INFINITO   ; Metemos el caracter mas pequeno que no nos sirve
         call findSmallest   ; llama la funcion
         mov r10, r15        ; Guarda el resultado en el r10
@@ -141,39 +140,117 @@ _start:
         get_node_addr r10, NODE_TREE, tree
         mov r12, [rax + 21]
 
-
-
-
-
-
-
-
-
         fld dword [rax] ;guarda en el nodoArbol la frecuencia
         fstp dword [r15] ;guarda la suma en nodo bosque
         mov [r15 + 4], rax
+
+        inc rdx
+        cmp dx, LETRAS_TOTALES
+
+        jne while
+
+        mov r11, [lastNode]
+        get_node_addr r11, NODE_TREE, tree
+
+        print_digit tree
+        print_digit rax
+
 
 
 
         ; ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+        mov rax, [rax + 13]
+        print_digit rax
+
+        mov rax, [rax + 13]
+        print_digit rax
+
+        mov rax, [rax + 13]
+        print_digit rax
+
+        mov rax, [rax + 13]
+        print_digit rax
+
+        mov rax, [rax + 13]
+        print_digit rax
+
+        mov rax, [rax + 13]
+        print_digit rax
+
+        mov rax, [rax + 13]
+        print_digit rax
+
+        mov rax, [rax + 13]
+        print_digit rax
+
+        mov rax, [rax + 13]
+        print_digit rax
+
+        mov rax, [rax + 13]
+        print_digit rax
+
+        mov rax, [rax + 13]
+                print_digit rax
+
+mov rax, [rax + 13]
+        print_digit rax
+
+        mov rax, [rax + 13]
+                print_digit rax
+
+        mov rax, [rax + 13]
+                print_digit rax
+
+    mov rax, [rax + 13]
+            print_digit rax
+
+            mov rax, [rax + 13]
+                    print_digit rax
+
+        mov rax, [rax + 13]
+                print_digit rax
+
+mov rax, [rax + 13]
+        print_digit rax
+ mov rax, [rax + 13]
+         print_digit rax
+  mov rax, [rax + 13]
+          print_digit rax
+
+mov rax, [rax + 13]
+        print_digit rax
+
+        mov rax, [rax + 13]
+                print_digit rax
+
+                mov rax, [rax + 13]
+                        print_digit rax
 
 
+
+
+        xor rbx, rbx
+        mov bl, [rax+4]
+        print_digit rbx
+
+
+               ;
         ; PRUEBAS\
         ;mov rax, tree
         ;add rax, 638 + 13
         ;mov rax, [rax+4]
         ;print_digit rax
 
-        fld dword [rax]
-        mov rax, [rax + 21]
-        break:
-        fld dword [rax]
+        ;fld dword [rax]
+        ;mov rax, [rax + 21]
 
-        xor rbx, rbx
-        mov r11, tree + 4 + 638
-        mov bl, [rax + 4]
-        print_digit rbx
+        ;fld dword [rax]
+
+        ;xor rbx, rbx
+        ;mov r11, tree + 4 + 638
+        ;mov bl, [rax + 4]
+        ;print_digit rbx
         ;print_digit rax
                          ;mov bl, [tree + 4 + 638]
                          ;print_digit rbx
@@ -189,7 +266,7 @@ _start:
     ;print_digit r15
 
     exit                        ; Cierra el programa
-    
+
     
 ; Busca el nodo con menor frecuencia en el bosque
 findSmallest:

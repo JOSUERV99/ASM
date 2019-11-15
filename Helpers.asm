@@ -43,6 +43,7 @@ SECTION .bss
 ; Macro para obtener la direccion de un nodo
 %macro get_node_addr 3
 
+    push rdx
     push rbx                        ; Guarda el valor de rbx ya que se va a modificar
      
     mov rax, %1                     ; Mueve el # de nodo al rax
@@ -51,6 +52,7 @@ SECTION .bss
     add rax, %3                     ; Y se suma donde empieza el array completo
     
     pop rbx                         ; Restaura el valor del rbx
+    pop rdx
 
 %endmacro
 

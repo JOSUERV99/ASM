@@ -43,7 +43,7 @@ _start:
         fstp dword [r8]                     ; y la suelta en el inicio del nodo
 
         mov eax, 97
-        add eax, ecx                        ; Suma 97 al contador, para obtener la otra, ya que 97 es a en ASCII
+        add rax, rcx                        ; Suma 97 al contador, para obtener la otra, ya que 97 es a en ASCII
 
         mov [r8 + 4], rax                     ; Ponemos el caracter en el nodo
         mov [lastNode], rcx                 ; Guardamos la posicion del ultimo nodo
@@ -53,6 +53,9 @@ _start:
 
         cmp cx, LETRAS_TOTALES          ; Lo comparamos para ver si tenemos que salir
         jne loop1                       ; si es 26, entonces terminamo
+
+
+
 
     ; Aqui sigue el codigo
     xor rcx, rcx                    ; Reinicia el loop
@@ -116,9 +119,6 @@ _start:
 
         mov r9, [r15 + 4]
         mov [rax + 13], r9   ; Colocar hijo izquierdo
-        ;print_digit r9
-
-
 
         ;mov rax, [rax + 13]
         ;mov rax, [rax + 4]
@@ -130,34 +130,53 @@ _start:
         mov r9, [r14 + 4]
         mov [r9 + 5], rax    ; Colocarle el padre a r14  (smallest 1)
 
+
         mov r9, [r15 + 4]
         mov [r9 + 5], rax    ; Colocarle el padre a r15 (smallest 2)
+        ;mov r10, [r10+4]
+
+        mov r10, [lastNode]
+        mov r11, tree
+
+        get_node_addr r10, NODE_TREE, tree
+        mov r12, [rax + 21]
+
+
+
+
+
+
+
+
 
         fld dword [rax] ;guarda en el nodoArbol la frecuencia
         fstp dword [r15] ;guarda la suma en nodo bosque
         mov [r15 + 4], rax
+
+
+
         ; ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 
         ; PRUEBAS\
-        mov rax, tree
-        add rax, 638 + 13
-        mov rax, [rax+4]
-        print_digit rax
+        ;mov rax, tree
+        ;add rax, 638 + 13
+        ;mov rax, [rax+4]
+        ;print_digit rax
 
         fld dword [rax]
         mov rax, [rax + 21]
-        mov rax, [rax + 4]
-        print_digit rax
-        exit
+        break:
+        fld dword [rax]
 
-        fld dword [rbx]
-
-        mov rbx, [rbx + 4]
+        xor rbx, rbx
+        mov r11, tree + 4 + 638
+        mov bl, [rax + 4]
         print_digit rbx
-
-        b:
+        ;print_digit rax
+                         ;mov bl, [tree + 4 + 638]
+                         ;print_digit rbx
 
 
     

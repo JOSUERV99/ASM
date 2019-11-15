@@ -144,6 +144,9 @@ _start:
         fstp dword [r15] ;guarda la suma en nodo bosque
         mov [r15 + 4], rax
 
+        load_infinity
+        fstp dword [r14]
+
         inc rdx
         cmp dx, LETRAS_TOTALES
 
@@ -160,72 +163,26 @@ _start:
 
         ; ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-        mov rax, [rax + 13]
+        mov rax, [rax + 21]
         print_digit rax
 
-        mov rax, [rax + 13]
+
+        mov rax, [rax + 21]
         print_digit rax
 
-        mov rax, [rax + 13]
+        mov rax, [rax + 21]
         print_digit rax
 
-        mov rax, [rax + 13]
+        mov rax, [rax + 21]
         print_digit rax
 
-        mov rax, [rax + 13]
+        mov rax, [rax + 21]
         print_digit rax
 
-        mov rax, [rax + 13]
-        print_digit rax
 
-        mov rax, [rax + 13]
-        print_digit rax
 
         mov rax, [rax + 13]
         print_digit rax
-
-        mov rax, [rax + 13]
-        print_digit rax
-
-        mov rax, [rax + 13]
-        print_digit rax
-
-        mov rax, [rax + 13]
-                print_digit rax
-
-mov rax, [rax + 13]
-        print_digit rax
-
-        mov rax, [rax + 13]
-                print_digit rax
-
-        mov rax, [rax + 13]
-                print_digit rax
-
-    mov rax, [rax + 13]
-            print_digit rax
-
-            mov rax, [rax + 13]
-                    print_digit rax
-
-        mov rax, [rax + 13]
-                print_digit rax
-
-mov rax, [rax + 13]
-        print_digit rax
- mov rax, [rax + 13]
-         print_digit rax
-  mov rax, [rax + 13]
-          print_digit rax
-
-mov rax, [rax + 13]
-        print_digit rax
-
-        mov rax, [rax + 13]
-                print_digit rax
-
-                mov rax, [rax + 13]
-                        print_digit rax
 
 
 

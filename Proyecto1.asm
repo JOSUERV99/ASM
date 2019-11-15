@@ -52,13 +52,13 @@ _start:
         inc cx                  ; Incrementa el cx
 
         cmp cx, LETRAS_TOTALES          ; Lo comparamos para ver si tenemos que salir
-        jne loop1                       ; si es 26, entonces terminamos
+        jne loop1                       ; si es 26, entonces terminamo
 
     ; Aqui sigue el codigo
     xor rcx, rcx                    ; Reinicia el loop
     mov r9, forest                  ; Obtenemos la direccion del forest para iniciar los punteros
     finit                           ; Reinicia la pila de flotantes
-    
+
     ; Carga las hojas del arbol en el bosuqe
     loop2:
     
@@ -77,15 +77,23 @@ _start:
         cmp cx, LETRAS_TOTALES  ; Lo comparamos para ver si tenemos que salir
         jne loop2               ; si es 26, entonces terminamos
 
+
     while:
 
         mov r10, INFINITO   ; Metemos el caracter mas pequeno que no nos sirve
         call findSmallest   ; llama la funcion
         mov r10, r15        ; Guarda el resultado en el r10
-        mov r14, r15        ; Duplica el valor, para no perderlo
+        mov r14, r15
+                ; Duplica el valor, para no perderlo
 
         call findSmallest   ; cambia la condicion del ciclo
 
+        ;mov r14, [r14 + 4]
+        ;mov r14, [r14 + 4]
+        ;print_digit r14
+        ;mov r15, [r15 + 4]
+        ;mov r15, [r15 + 4]
+        ;print_digit r15
         finit
 
         mov r13, [lastNode] ; Incrementa lastNode
@@ -99,11 +107,25 @@ _start:
         fadd
         fstp dword [rax]    ; Guardarlas en current Node
 
+
         mov r9, [r14 + 4]
-        mov [rax+21], r9   ; Colocar hijo derecho
+        mov [rax + 21], r9   ; Colocar hijo derecho
+
+        mov rcx, [lastNode]
+        get_node_addr rcx, NODE_TREE, tree
 
         mov r9, [r15 + 4]
-        mov [rax+13], r9   ; Colocar hijo izquierdo
+        mov [rax + 13], r9   ; Colocar hijo izquierdo
+        ;print_digit r9
+
+
+
+        ;mov rax, [rax + 13]
+        ;mov rax, [rax + 4]
+        ;print_digit rax
+
+        ;exit
+        ;;;;;;; AQUI ESTAA BIEN ;;;;;;;;
 
         mov r9, [r14 + 4]
         mov [r9 + 5], rax    ; Colocarle el padre a r14  (smallest 1)
@@ -111,13 +133,24 @@ _start:
         mov r9, [r15 + 4]
         mov [r9 + 5], rax    ; Colocarle el padre a r15 (smallest 2)
 
-        fld dword [rax]
-        fstp dword [r15]
-        mov [r15 + 4],rax
+        fld dword [rax] ;guarda en el nodoArbol la frecuencia
+        fstp dword [r15] ;guarda la suma en nodo bosque
+        mov [r15 + 4], rax
+        ; ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-        ; PRUEBAS
-        mov rax, [r15 + 4]
-        mov rbx, [rax + 21]
+
+
+        ; PRUEBAS\
+        mov rax, tree
+        add rax, 638 + 13
+        mov rax, [rax+4]
+        print_digit rax
+
+        fld dword [rax]
+        mov rax, [rax + 21]
+        mov rax, [rax + 4]
+        print_digit rax
+        exit
 
         fld dword [rbx]
 

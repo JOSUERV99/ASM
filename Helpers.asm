@@ -93,6 +93,16 @@ SECTION .bss
     
 %endmacro
 
+%macro call_print_tree 2
+
+    push %1
+    push %2
+    call print_tree
+    pop rax
+    pop rax
+
+%endmacro
+
 ; Macro para imprimir un digito
 %macro print_digit 1
 

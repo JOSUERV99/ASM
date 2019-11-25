@@ -14,7 +14,7 @@ SECTION .data
     cantLetras: dd LETRAS_TOTALES   ; Cantidad de letras restantes de acomodar
     lastNode: dd 0                  ; Posicion del ultimo nodo del arbol
     frecuencias: dd 12.53, 1.42, 4.68, 5.86, 13.68, 0.69, 1.01, 0.70, 6.25, 0.44, 0.02, 4.97, 3.15, 6.71, 8.68, 2.51, 0.88, 6.87, 7.98, 4.63, 3.93, 0.90, 0.01, 0.22, 0.90, 0.52
-    hello_world: db "Hello World", 10, 0
+    helloWorld: db "Hello World", 10, 0
 
 SECTION .bss
     forest: resb LETRAS_TOTALES * NODE_FOREST           ; Array de forest
@@ -156,38 +156,7 @@ _start:
         get_node_addr r11, NODE_TREE, tree
         
         ; Imprime el arbol, envia la direccion donde inicia
-        push rax
-        call print_tree
-        pop rax
-
-        ;print_digit tree
-        ;print_digit rax
-
-
-
-        ; ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-        ;mov rax, [rax + 21]
-        ;print_digit rax
-
-        ;mov rax, [rax + 21]
-        ;print_digit rax
-
-        ;mov rax, [rax + 21]
-        ;print_digit rax
-
-        ;mov rax, [rax + 21]
-        ;print_digit rax
-
-        ;mov rax, [rax + 21]
-        ;print_digit rax
-
-        ;mov rax, [rax + 13]
-        ;print_digit rax
-
-        ;xor rbx, rbx
-        ;mov bl, [rax+4]
-        ;print_digit rbx
+        call_print_tree rax, 1
 
     exit                        ; Cierra el programa
 
@@ -195,39 +164,49 @@ _start:
 ; en el rsp + 8 esta la direccion donde empieza el arbol
 print_tree:
     
+    xor rcx, rcx
     xor rbx, rbx                    ; Limpia el rbx para usarlo para pasar direcciones
-    mov rax, [rsp + 8]              ; Obtiene la posicion de inicio del arbol
+    mov rax, [rsp + 16]             ; Obtiene la posicion de inicio del arbol
     
     cmp rax, 0                      ; Si no es una direccion valida, retorna
     je retMe
     
     xor rbx, rbx                    ; Obtiene la letra actual
-    mov bl, [rax+4]
+    mov bl, [rax + 4]
     
     cmp rbx, 0                      ; Si no es uan letra valida, retorna
     je next
     
-    print_digit rbx                 ; Imprime la letra
+    mov rcx, [rsp + 8]
+    print_digit rbx
+    print_digit rcx
+    
     
     ret                             ; Retorna la funcion
     
     ; Imprime los hijos del arbol
     next:
         
-    
         ; Imprime el hijo izquierdo
-        mov rax, [rsp + 8]
-        mov rbx, [rax + 13]
-        push rbx
-        call print_tree
-        pop rbx
+        mov r15, [rsp + 16]
+        mov r15, [r15 + 13]
+        
+        mov rax, [rsp + 08]
+        mov rbx, 10
+        mul rbx
+        
+        call_print_tree r15, rax
         
         ; Imprime el hijo derecho
-        mov rax, [rsp + 8]
-        mov rbx, [rax + 21]
-        push rbx
-        call print_tree
-        pop rbx
+        mov r15, [rsp + 16]
+        mov r15, [r15 + 21]
+        
+        mov rax, [rsp + 08]
+        mov rbx, 10
+        mul rbx
+        inc rax
+        
+        call_print_tree r15, rax
         
     
     ; Retorna la funcion

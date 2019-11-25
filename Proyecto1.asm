@@ -1,28 +1,30 @@
 %include "Helpers.asm"
 
+; Hola -> 101110000001100100
+
 ; Seccion de informacion
 SECTION .data
 
-    LETRAS_TOTALES equ 26           ; Cantidad de letras en total
+    LETRAS_TOTALES equ 0x1a         ; Cantidad de letras en total (26)
     
-    NODE_TREE equ 29                ; Tamano del nodo del arbol
+    NODE_TREE equ 0x1d              ; Tamano del nodo del arbol (29)
     ; Frecuencia (4 bits) - Caracter (1 bit) - Nodo padre (8 bits) - Hijos izquierdo y derecho (16 bits)
     
-    NODE_FOREST equ 12              ; Tamano del nodo del bosuqe
+    NODE_FOREST equ 0x0c            ; Tamano del nodo del bosque (12)
     ; Frecuencia (4 bits) - Puntero al nodo del arbol (8 bits)
 
     cantLetras: dd LETRAS_TOTALES   ; Cantidad de letras restantes de acomodar
-    lastNode: dd 0                  ; Posicion del ultimo nodo del arbol
+    lastNode: dd 0x0                ; Posicion del ultimo nodo del arbol
     frecuencias: dd 12.53, 1.42, 4.68, 5.86, 13.68, 0.69, 1.01, 0.70, 6.25, 0.44, 0.02, 4.97, 3.15, 6.71, 8.68, 2.51, 0.88, 6.87, 7.98, 4.63, 3.93, 0.90, 0.01, 0.22, 0.90, 0.52
 
-    request: db "Ingrese el codigo: ", 0 ; Mensaje a mostrar cuando se solicita un string
-    newLine: db 10, 0
-    charToPrint: db 0, 0
+    request: db "Ingrese el codigo: ", 0x0      ; Mensaje a mostrar cuando se solicita un string
+    newLine: db 0x0a, 0x0                       ; Mensaje para imprimir una nueva letra
+    charToPrint: db 0x0, 0x0                    ; Byte para imprimir cuando solo se quiere imprimir un byte
 
 SECTION .bss
     forest: resb LETRAS_TOTALES * NODE_FOREST           ; Array de forest
-    tree: resb LETRAS_TOTALES * NODE_TREE * 2           ; Array del bosque
-    input: resb 100                                     ; Reserva 100 bytes para la palabra
+    tree: resb LETRAS_TOTALES * NODE_TREE * 0x02        ; Array del bosque
+    input: resb 0x64                                    ; Reserva 100 bytes para la palabra
 
 
 SECTION .text
@@ -31,7 +33,7 @@ SECTION .text
 ; Funcion principal en assembler
 _start:
     finit                       ; Resetea la pila de flotantes
-    mov cx, 0                   ; Inicio del ciclo para establece los nodos iniciales
+    mov cx, 0x0                 ; Inicio del ciclo para establece los nodos iniciales
    
     ; Este ciclo establece los nodos principales en el arbol como hojas
     loop1:
@@ -42,15 +44,15 @@ _start:
 
         ; Ordena los datos del nodo
         mov eax, ecx                        ; Se calcula el inicio de la frecuencia del nodo
-        mov ebx, 4
+        mov ebx, 0x04
         mul ebx
         fld dword [frecuencias + eax]       ; Almacena la frecuencia de la letra
         fstp dword [r8]                     ; y la suelta en el inicio del nodo
 
-        mov eax, 97
+        mov eax, 0x61
         add rax, rcx                        ; Suma 97 al contador, para obtener la otra, ya que 97 es a en ASCII
 
-        mov [r8 + 4], rax                   ; Ponemos el caracter en el nodo
+        mov [r8 + 0x04], rax                ; Ponemos el caracter en el nodo
         mov [lastNode], rcx                 ; Guardamos la posicion del ultimo nodo
 
         ; Procedimiento para el for
@@ -74,7 +76,7 @@ _start:
         fld dword [rax]             ; Carga la frecuencia a la pila
         fstp dword [r9]             ; Guarda la frecuencia en el inicio del nodo
 
-        mov [r9 + 4], rax           ; Guarda el puntero al nodo del arbol
+        mov [r9 + 0x04], rax        ; Guarda el puntero al nodo del arbol
 
         ; Procedimiento para el for
         inc cx                  ; Incrementa el cx
@@ -84,7 +86,7 @@ _start:
         jne loop2               ; si es 26, entonces terminamos
 
 
-    mov rdx, 0
+    xor rdx, rdx
 
     while:
         mov r10, INFINITO   ; Metemos el caracter mas pequeno que no nos sirve
@@ -94,7 +96,7 @@ _start:
 
         call findSmallest   ; cambia la condicion del ciclo
 
-        ;finit               ; Se asegura de limpia los flotantes
+        ;finit              ; Se asegura de limpia los flotantes
 
         mov r13, [lastNode] ; Incrementa lastNode
         inc r13
@@ -113,26 +115,26 @@ _start:
         get_node_addr rcx, NODE_TREE, tree
 
         ; Coloca los hijos
-        mov r9, [r15 + 4]
-        mov [rax + 13], r9   ; Colocar hijo izquierdo
+        mov r9, [r15 + 0x04]
+        mov [rax + 0x0d], r9 ; Colocar hijo izquierdo
         
-        mov r9, [r14 + 4]
-        mov [rax + 21], r9   ; Colocar hijo derecho
+        mov r9, [r14 + 0x04]
+        mov [rax + 0x15], r9   ; Colocar hijo derecho
 
-        mov r9, [r14 + 4]
-        mov [r9 + 5], rax    ; Colocarle el padre a r14  (smallest 1)
+        mov r9, [r14 + 0x04]
+        mov [r9 + 0x05], rax    ; Colocarle el padre a r14  (smallest 1)
 
-        mov r9, [r15 + 4]
-        mov [r9 + 5], rax    ; Colocarle el padre a r15 (smallest 2)
+        mov r9, [r15 + 0x04]
+        mov [r9 + 0x05], rax    ; Colocarle el padre a r15 (smallest 2)
 
         ; Carga el ultimo nodo
         mov r10, [lastNode]
         get_node_addr r10, NODE_TREE, tree
-        mov r12, [rax + 21]
+        mov r12, [rax + 0x15]
 
         fld dword [rax] ;guarda en el nodoArbol la frecuencia
         fstp dword [r15] ;guarda la suma en nodo bosque
-        mov [r15 + 4], rax
+        mov [r15 + 0x04], rax
 
         load_infinity
         fstp dword [r14]
@@ -145,28 +147,10 @@ _start:
         ; Obtiene la direccion de memoria del arbol
         mov r11, [lastNode]
         get_node_addr r11, NODE_TREE, tree
-        mov rax, [rax + 21]
+        mov rax, [rax + 0x15]
         
         ; Imprime el arbol, envia la direccion donde inicia
         ;call_print_tree rax, 1
-        
-        
-        ;:;;;;;;;;;;;;;;;; Pruebas ;;;;;;;;;;;;;;;;;;;;
-        
-         ; Obtiene la direccion de memoria del arbol
-        ;mov r11, [lastNode]
-        ;get_node_addr r11, NODE_TREE, tree
-        ;mov rax, [rax + 21]
-        
-        ;mov rax, [rax + 21]
-        ;mov rax, [rax + 13]
-        ;mov rax, [rax + 13]
-        
-        ;xor rbx, rbx
-        ;mov bl, [rax + 4]
-        ;print_digit rbx
-        ; Deberia imprimir 97
-        ; Ven a cantar, ven a bailar que ya llego la navidad :)
         
         ; Se prepara para recibir codigos
         infiteLoop:
@@ -177,7 +161,7 @@ _start:
             
             call read_code      ; Lee el codigo enviado
             
-            jmp infiteLoop
+            jmp infiteLoop      ; Continua el bucle infinito
 
     exit                        ; Cierra el programa
 
@@ -189,7 +173,7 @@ read_code:
     ; Obtiene el inicio del arbol
     mov r11, [lastNode]
     get_node_addr r11, NODE_TREE, tree
-    mov rax, [rax + 21]
+    mov rax, [rax + 0x15]
     
     ; Bucle para buscar el codigo
     xor rcx, rcx                ; Limpia el rcx para usarlo como contador
@@ -199,7 +183,7 @@ read_code:
         mov bl, [input + rcx]
        
         ; Revisa si es una caracter valido
-        cmp bl, 0
+        cmp bl, 0x0
         je retRead
         
         ; Revisa asi a donde se tiene que mover
@@ -208,24 +192,21 @@ read_code:
         cmp bl, 0x31
         je moveRight
         
-        mov r15, 0
-        mov r14, 1
-   
         ; Se mueve asi la izquierda
         moveLeft:
-            mov rax, [rax + 13]
+            mov rax, [rax + 0x0d]
             jmp continueSearch
             
         ; Se mueve a la derecha
         moveRight:
-            mov rax, [rax + 21]
+            mov rax, [rax + 0x15]
             jmp continueSearch
    
         continueSearch:
             
             ; Obtiene la letra
-            mov bl, [rax + 4]
-            cmp bl, 0
+            mov bl, [rax + 0x04]
+            cmp bl, 0x0
             je nextLoop
             
             mov [charToPrint], bl
@@ -234,7 +215,7 @@ read_code:
             ; Obtiene el inicio del arbol
             mov r11, [lastNode]
             get_node_addr r11, NODE_TREE, tree
-            mov rax, [rax + 21]
+            mov rax, [rax + 0x15]
                     
         ; Salga al siguiente ciclo
         nextLoop:
@@ -257,18 +238,18 @@ print_tree:
     
     xor rcx, rcx
     xor rbx, rbx                    ; Limpia el rbx para usarlo para pasar direcciones
-    mov rax, [rsp + 16]             ; Obtiene la posicion de inicio del arbol
+    mov rax, [rsp + 0x10]             ; Obtiene la posicion de inicio del arbol
     
-    cmp rax, 0                      ; Si no es una direccion valida, retorna
+    cmp rax, 0x0                      ; Si no es una direccion valida, retorna
     je retMe
     
     xor rbx, rbx                    ; Obtiene la letra actual
-    mov bl, [rax + 4]
+    mov bl, [rax + 0x4]
     
-    cmp rbx, 0                      ; Si no es uan letra valida, retorna
+    cmp rbx, 0x0                      ; Si no es uan letra valida, retorna
     je next
     
-    mov rcx, [rsp + 8]              ; Imprime la letra y su codigo
+    mov rcx, [rsp + 0x08]              ; Imprime la letra y su codigo
     print_digit rbx
     print_digit rcx
     
@@ -278,21 +259,21 @@ print_tree:
     next:
         
         ; Imprime el hijo izquierdo
-        mov r15, [rsp + 16]
-        mov r15, [r15 + 13]
+        mov r15, [rsp + 0x10]
+        mov r15, [r15 + 0x0d]
         
-        mov rax, [rsp + 08]
-        mov rbx, 10
+        mov rax, [rsp + 0x08]
+        mov rbx, 0x0a
         mul rbx
         
         call_print_tree r15, rax
         
         ; Imprime el hijo derecho
-        mov r15, [rsp + 16]
-        mov r15, [r15 + 21]
+        mov r15, [rsp + 0x10]
+        mov r15, [r15 + 0x15]
         
-        mov rax, [rsp + 08]
-        mov rbx, 10
+        mov rax, [rsp + 0x08]
+        mov rbx, 0x0a
         mul rbx
         inc rax
         
@@ -323,7 +304,7 @@ findSmallest:
 
         je continueLoopFindSmallest             ; y si son igual, salta
         
-        cmp r15, 0                              ; Revisa si ya tenemos un nodo
+        cmp r15, 0x0                              ; Revisa si ya tenemos un nodo
         je setSmallest
         
         fld dword [eax]                         ; Carga el valor del actual junto con el menor encontrado antes
@@ -351,10 +332,10 @@ findSmallest:
 get_input:
 
     ; Solicita el input del sistema operativo
-    mov rax, 3
-    mov rbx, 0
+    mov rax, 0x03
+    mov rbx, 0x0
     mov rcx, input
-    mov rdx, 100
+    mov rdx, 0x64
     int 0x80
     
     ; Retorna la funcion

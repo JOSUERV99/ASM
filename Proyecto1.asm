@@ -14,7 +14,7 @@ SECTION .data
     cantLetras: dd LETRAS_TOTALES   ; Cantidad de letras restantes de acomodar
     lastNode: dd 0                  ; Posicion del ultimo nodo del arbol
     frecuencias: dd 12.53, 1.42, 4.68, 5.86, 13.68, 0.69, 1.01, 0.70, 6.25, 0.44, 0.02, 4.97, 3.15, 6.71, 8.68, 2.51, 0.88, 6.87, 7.98, 4.63, 3.93, 0.90, 0.01, 0.22, 0.90, 0.52
-
+    hello_world: db "Hello World", 10, 0
 
 SECTION .bss
     forest: resb LETRAS_TOTALES * NODE_FOREST           ; Array de forest
@@ -129,7 +129,6 @@ _start:
         mov r9, [r14 + 4]
         mov [r9 + 5], rax    ; Colocarle el padre a r14  (smallest 1)
 
-
         mov r9, [r15 + 4]
         mov [r9 + 5], rax    ; Colocarle el padre a r15 (smallest 2)
         ;mov r10, [r10+4]
@@ -152,78 +151,88 @@ _start:
 
         jne while
 
+        ; Obtiene la direccion de memoria del arbol
         mov r11, [lastNode]
         get_node_addr r11, NODE_TREE, tree
+        
+        ; Imprime el arbol, envia la direccion donde inicia
+        push rax
+        call print_tree
+        pop rax
 
-        print_digit tree
-        print_digit rax
-
+        ;print_digit tree
+        ;print_digit rax
 
 
 
         ; ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-        mov rax, [rax + 21]
-        print_digit rax
-
-
-        mov rax, [rax + 21]
-        print_digit rax
-
-        mov rax, [rax + 21]
-        print_digit rax
-
-        mov rax, [rax + 21]
-        print_digit rax
-
-        mov rax, [rax + 21]
-        print_digit rax
-
-
-
-        mov rax, [rax + 13]
-        print_digit rax
-
-
-
-
-        xor rbx, rbx
-        mov bl, [rax+4]
-        print_digit rbx
-
-
-               ;
-        ; PRUEBAS\
-        ;mov rax, tree
-        ;add rax, 638 + 13
-        ;mov rax, [rax+4]
+        ;mov rax, [rax + 21]
         ;print_digit rax
 
-        ;fld dword [rax]
         ;mov rax, [rax + 21]
+        ;print_digit rax
 
-        ;fld dword [rax]
+        ;mov rax, [rax + 21]
+        ;print_digit rax
+
+        ;mov rax, [rax + 21]
+        ;print_digit rax
+
+        ;mov rax, [rax + 21]
+        ;print_digit rax
+
+        ;mov rax, [rax + 13]
+        ;print_digit rax
 
         ;xor rbx, rbx
-        ;mov r11, tree + 4 + 638
-        ;mov bl, [rax + 4]
+        ;mov bl, [rax+4]
         ;print_digit rbx
-        ;print_digit rax
-                         ;mov bl, [tree + 4 + 638]
-                         ;print_digit rbx
-
-
-    
-    ; En este momento, r14 tiene el menor y r15 el segundo menor
-    ;mov r14, [r14 + 4]
-    ;mov r14, [r14 + 4]
-    ;print_digit r14
-    ;mov r15, [r15 + 4]
-    ;mov r15, [r15 + 4]
-    ;print_digit r15
 
     exit                        ; Cierra el programa
 
+; Imprime un arbol
+; en el rsp + 8 esta la direccion donde empieza el arbol
+print_tree:
+    
+    xor rbx, rbx                    ; Limpia el rbx para usarlo para pasar direcciones
+    mov rax, [rsp + 8]              ; Obtiene la posicion de inicio del arbol
+    
+    cmp rax, 0                      ; Si no es una direccion valida, retorna
+    je retMe
+    
+    xor rbx, rbx                    ; Obtiene la letra actual
+    mov bl, [rax+4]
+    
+    cmp rbx, 0                      ; Si no es uan letra valida, retorna
+    je next
+    
+    print_digit rbx                 ; Imprime la letra
+    
+    ret                             ; Retorna la funcion
+    
+    ; Imprime los hijos del arbol
+    next:
+        
+    
+        ; Imprime el hijo izquierdo
+        mov rax, [rsp + 8]
+        mov rbx, [rax + 13]
+        push rbx
+        call print_tree
+        pop rbx
+        
+        ; Imprime el hijo derecho
+        mov rax, [rsp + 8]
+        mov rbx, [rax + 21]
+        push rbx
+        call print_tree
+        pop rbx
+        
+    
+    ; Retorna la funcion
+    retMe:
+        ret
     
 ; Busca el nodo con menor frecuencia en el bosque
 findSmallest:

@@ -15,10 +15,14 @@ SECTION .data
     lastNode: dd 0                  ; Posicion del ultimo nodo del arbol
     frecuencias: dd 12.53, 1.42, 4.68, 5.86, 13.68, 0.69, 1.01, 0.70, 6.25, 0.44, 0.02, 4.97, 3.15, 6.71, 8.68, 2.51, 0.88, 6.87, 7.98, 4.63, 3.93, 0.90, 0.01, 0.22, 0.90, 0.52
 
+    request: db "Ingrese el codigo: ", 0 ; Mensaje a mostrar cuando se solicita un string
+    newLine: db 10, 0
+    charToPrint: db 0, 0
 
 SECTION .bss
     forest: resb LETRAS_TOTALES * NODE_FOREST           ; Array de forest
     tree: resb LETRAS_TOTALES * NODE_TREE * 2           ; Array del bosque
+    input: resb 100                                     ; Reserva 100 bytes para la palabra
 
 
 SECTION .text
@@ -144,27 +148,107 @@ _start:
         mov rax, [rax + 21]
         
         ; Imprime el arbol, envia la direccion donde inicia
-        call_print_tree rax, 1
+        ;call_print_tree rax, 1
         
         
         ;:;;;;;;;;;;;;;;;; Pruebas ;;;;;;;;;;;;;;;;;;;;
         
          ; Obtiene la direccion de memoria del arbol
-        mov r11, [lastNode]
-        get_node_addr r11, NODE_TREE, tree
-        mov rax, [rax + 21]
+        ;mov r11, [lastNode]
+        ;get_node_addr r11, NODE_TREE, tree
+        ;mov rax, [rax + 21]
         
-        mov rax, [rax + 21]
-        mov rax, [rax + 13]
-        mov rax, [rax + 13]
+        ;mov rax, [rax + 21]
+        ;mov rax, [rax + 13]
+        ;mov rax, [rax + 13]
         
-        xor rbx, rbx
-        mov bl, [rax + 4]
-        print_digit rbx
+        ;xor rbx, rbx
+        ;mov bl, [rax + 4]
+        ;print_digit rbx
         ; Deberia imprimir 97
         ; Ven a cantar, ven a bailar que ya llego la navidad :)
+        
+        ; Se prepara para recibir codigos
+        infiteLoop:
+        
+            ; Solicita un codigo al usuario
+            print_string request
+            call get_input
+            
+            call read_code      ; Lee el codigo enviado
+            
+            jmp infiteLoop
 
     exit                        ; Cierra el programa
+
+; Lee el codigo presente en el input
+read_code:
+
+    xor rbx, rbx                ; Limpia el rbx para guarda la letra actual
+
+    ; Obtiene el inicio del arbol
+    mov r11, [lastNode]
+    get_node_addr r11, NODE_TREE, tree
+    mov rax, [rax + 21]
+    
+    ; Bucle para buscar el codigo
+    xor rcx, rcx                ; Limpia el rcx para usarlo como contador
+    loopSearch:
+        
+        ; Obtiene el numero actual
+        mov bl, [input + rcx]
+       
+        ; Revisa si es una caracter valido
+        cmp bl, 0
+        je retRead
+        
+        ; Revisa asi a donde se tiene que mover
+        cmp bl, 0x30
+        je moveLeft
+        cmp bl, 0x31
+        je moveRight
+        
+        mov r15, 0
+        mov r14, 1
+   
+        ; Se mueve asi la izquierda
+        moveLeft:
+            mov rax, [rax + 13]
+            jmp continueSearch
+            
+        ; Se mueve a la derecha
+        moveRight:
+            mov rax, [rax + 21]
+            jmp continueSearch
+   
+        continueSearch:
+            
+            ; Obtiene la letra
+            mov bl, [rax + 4]
+            cmp bl, 0
+            je nextLoop
+            
+            mov [charToPrint], bl
+            print_string charToPrint
+
+            ; Obtiene el inicio del arbol
+            mov r11, [lastNode]
+            get_node_addr r11, NODE_TREE, tree
+            mov rax, [rax + 21]
+                    
+        ; Salga al siguiente ciclo
+        nextLoop:
+            inc rcx
+            jmp loopSearch
+   
+    ; Retorna la funcion
+    retRead:
+        
+        ; Imprime una nueva linea
+        print_string newLine
+        
+        ; Retorna la funcion
+        ret
 
 ; Imprime un arbol
 ; [rsp + 16] arbol actual
@@ -230,7 +314,8 @@ findSmallest:
         
         get_node_addr rcx, NODE_FOREST, forest  ; Obtiene la direccion del nodo en el bosque
         
-        fld dword [r10]
+        fld dword [r10]   ; Read user input into str
+    
         fld dword [eax]                         ; Carga la frecuencia actual
         fcomip                                  ; y la compara con el valor no deseado
         fstp
@@ -262,3 +347,15 @@ findSmallest:
 
     ret                         ; Retorna la funcion
     
+; Obtiene el input del usuario
+get_input:
+
+    ; Solicita el input del sistema operativo
+    mov rax, 3
+    mov rbx, 0
+    mov rcx, input
+    mov rdx, 100
+    int 0x80
+    
+    ; Retorna la funcion
+    ret

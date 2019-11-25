@@ -14,18 +14,19 @@ SECTION .data
     cantLetras: dd LETRAS_TOTALES   ; Cantidad de letras restantes de acomodar
     lastNode: dd 0                  ; Posicion del ultimo nodo del arbol
     frecuencias: dd 12.53, 1.42, 4.68, 5.86, 13.68, 0.69, 1.01, 0.70, 6.25, 0.44, 0.02, 4.97, 3.15, 6.71, 8.68, 2.51, 0.88, 6.87, 7.98, 4.63, 3.93, 0.90, 0.01, 0.22, 0.90, 0.52
-    helloWorld: db "Hello World", 10, 0
+
 
 SECTION .bss
     forest: resb LETRAS_TOTALES * NODE_FOREST           ; Array de forest
     tree: resb LETRAS_TOTALES * NODE_TREE * 2           ; Array del bosque
+
 
 SECTION .text
     global _start
 
 ; Funcion principal en assembler
 _start:
-    finit                       ; resetea la pila de flotantes
+    finit                       ; Resetea la pila de flotantes
     mov cx, 0                   ; Inicio del ciclo para establece los nodos iniciales
    
     ; Este ciclo establece los nodos principales en el arbol como hojas
@@ -37,7 +38,7 @@ _start:
 
         ; Ordena los datos del nodo
         mov eax, ecx                        ; Se calcula el inicio de la frecuencia del nodo
-        mov ebx,  4
+        mov ebx, 4
         mul ebx
         fld dword [frecuencias + eax]       ; Almacena la frecuencia de la letra
         fstp dword [r8]                     ; y la suelta en el inicio del nodo
@@ -45,11 +46,11 @@ _start:
         mov eax, 97
         add rax, rcx                        ; Suma 97 al contador, para obtener la otra, ya que 97 es a en ASCII
 
-        mov [r8 + 4], rax                     ; Ponemos el caracter en el nodo
+        mov [r8 + 4], rax                   ; Ponemos el caracter en el nodo
         mov [lastNode], rcx                 ; Guardamos la posicion del ultimo nodo
 
         ; Procedimiento para el for
-        inc cx                  ; Incrementa el cx
+        inc cx                          ; Incrementa el cx
 
         cmp cx, LETRAS_TOTALES          ; Lo comparamos para ver si tenemos que salir
         jne loop1                       ; si es 26, entonces terminamo
@@ -85,57 +86,43 @@ _start:
         mov r10, INFINITO   ; Metemos el caracter mas pequeno que no nos sirve
         call findSmallest   ; llama la funcion
         mov r10, r15        ; Guarda el resultado en el r10
-        mov r14, r15
-                ; Duplica el valor, para no perderlo
+        mov r14, r15        ; Duplica el valor, para no perderlo
 
         call findSmallest   ; cambia la condicion del ciclo
 
-        ;mov r14, [r14 + 4]
-        ;mov r14, [r14 + 4]
-        ;print_digit r14
-        ;mov r15, [r15 + 4]
-        ;mov r15, [r15 + 4]
-        ;print_digit r15
-        finit
+        ;finit               ; Se asegura de limpia los flotantes
 
         mov r13, [lastNode] ; Incrementa lastNode
         inc r13
         mov [lastNode], r13
 
+        ; Obtiene el ultimo nodo
         get_node_addr r13, NODE_TREE, tree
 
         fld dword [r14]     ; Sumar las 2 frecuencias mas pequennas
         fld dword [r15]
         fadd
-        fstp dword [rax]    ; Guardarlas en current Node
+        fstp dword [rax]    ; y las guardar en current Node
 
-
-        mov r9, [r14 + 4]
-        mov [rax + 21], r9   ; Colocar hijo derecho
-
+        ; Obtiene la direccion del nodo actual
         mov rcx, [lastNode]
         get_node_addr rcx, NODE_TREE, tree
 
+        ; Coloca los hijos
         mov r9, [r15 + 4]
         mov [rax + 13], r9   ; Colocar hijo izquierdo
-
-        ;mov rax, [rax + 13]
-        ;mov rax, [rax + 4]
-        ;print_digit rax
-
-        ;exit
-        ;;;;;;; AQUI ESTAA BIEN ;;;;;;;;
+        
+        mov r9, [r14 + 4]
+        mov [rax + 21], r9   ; Colocar hijo derecho
 
         mov r9, [r14 + 4]
         mov [r9 + 5], rax    ; Colocarle el padre a r14  (smallest 1)
 
         mov r9, [r15 + 4]
         mov [r9 + 5], rax    ; Colocarle el padre a r15 (smallest 2)
-        ;mov r10, [r10+4]
 
+        ; Carga el ultimo nodo
         mov r10, [lastNode]
-        mov r11, tree
-
         get_node_addr r10, NODE_TREE, tree
         mov r12, [rax + 21]
 
@@ -154,14 +141,34 @@ _start:
         ; Obtiene la direccion de memoria del arbol
         mov r11, [lastNode]
         get_node_addr r11, NODE_TREE, tree
+        mov rax, [rax + 21]
         
         ; Imprime el arbol, envia la direccion donde inicia
         call_print_tree rax, 1
+        
+        
+        ;:;;;;;;;;;;;;;;;; Pruebas ;;;;;;;;;;;;;;;;;;;;
+        
+         ; Obtiene la direccion de memoria del arbol
+        mov r11, [lastNode]
+        get_node_addr r11, NODE_TREE, tree
+        mov rax, [rax + 21]
+        
+        mov rax, [rax + 21]
+        mov rax, [rax + 13]
+        mov rax, [rax + 13]
+        
+        xor rbx, rbx
+        mov bl, [rax + 4]
+        print_digit rbx
+        ; Deberia imprimir 97
+        ; Ven a cantar, ven a bailar que ya llego la navidad :)
 
     exit                        ; Cierra el programa
 
 ; Imprime un arbol
-; en el rsp + 8 esta la direccion donde empieza el arbol
+; [rsp + 16] arbol actual
+; [rsp + 08] codigo actual (sin el primer 1)
 print_tree:
     
     xor rcx, rcx
@@ -177,10 +184,9 @@ print_tree:
     cmp rbx, 0                      ; Si no es uan letra valida, retorna
     je next
     
-    mov rcx, [rsp + 8]
+    mov rcx, [rsp + 8]              ; Imprime la letra y su codigo
     print_digit rbx
     print_digit rcx
-    
     
     ret                             ; Retorna la funcion
     
@@ -206,7 +212,7 @@ print_tree:
         mul rbx
         inc rax
         
-        call_print_tree r15, rax
+        call_print_tree r15, rax            ; Imprime lo
         
     
     ; Retorna la funcion

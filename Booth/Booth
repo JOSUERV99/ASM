@@ -1,0 +1,38 @@
+			;		Los resultados quedan:
+			;		R0: Cociente
+			;		R1: Residou
+			MOV		R1, #11		; R1 es el dividendo
+			MOV		R2, #3		; R2 es el divisor
+			
+			
+			CMP		R2, #0		; Revisa que no sea division por 0
+			BEQ		divide_end
+			
+			EOR		R0, R0, R0     ; Limpia el R0 para usarlo como resultado
+			MOV		R3, #1     	; Establece un 1 en el contador para luego irlo corriendo y obtener la cantidad de bits del dividendo
+			
+			;		Calcula el numero de bits del dividendo
+start
+			CMP		R2, R1		; Revisa si el divisor el y dividendo son el mismo
+			
+			;		Si es el mismo o menor
+			LSLLS	R2, R2, #1	; Ejecuta el shift al divisor
+			LSLLS	R3, R3, #1	; y al suma el contador
+			BLS		start
+			
+			
+calc
+			CMP		R1, R2      	; Compara el divisor y dividendo
+			
+			;		En caso de R1 > R2, se sabe por (Carry Set)
+			SUBCS	R1, R1, R2   	; Le resta al dividendo el divisor
+			ADDCS	R0, R0, R3   	; y suma el bit actual en el contador al resultado
+			
+			LSRS		R3, R3, #1    	; Disminuye el contador, CAMBIANDO EL REGISTRO DE BANDERAS
+			LSRCC	R2, R2, #1     ; y el bit era 0, entonce tambien se corre el divisor
+			
+			BCC		calc           ; Si no quedo nada, entonces repetimos el ciclo
+			
+			
+divide_end
+			end		; Termina el programa

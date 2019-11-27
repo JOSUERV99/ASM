@@ -1,9 +1,23 @@
 			;		Los resultados quedan:
 			;		R0: Cociente
 			;		R1: Residou
-			MOV		R1, #11		; R1 es el dividendo
-			MOV		R2, #3		; R2 es el divisor
+			MOV		R1, #-25		; R1 es el dividendo
+			MOV		R2, #-5		; R2 es el divisor
 			
+			;		Revisa si el resultado es negativo o positivo
+			;		Si es negativo, entonces habra un -1 en el r5
+			;		Dividendo
+			CMP		R1, #0
+			MOVMI	R5, #-1
+			ADDMI	R7, R1, R1
+			SUBMI	R1, R1, R7
+			
+			;		Divisor
+			CMP		R2, #0
+			MOVMI	R6, #-1
+			ADDMI	R5, R5, R6
+			ADDMI	R7, R2, R2
+			SUBMI	R2, R2, R7
 			
 			CMP		R2, #0		; Revisa que no sea division por 0
 			BEQ		divide_end
@@ -35,4 +49,12 @@ calc
 			
 			
 divide_end
+			CMP		R5, #0
+			ADDMI	R7, R0, R0
+			SUBMI	R0, R0, R7
+			
+			CMP		R5, #-2
+			ADDEQ	R7, R0, R0
+			SUBEQ	R0, R0, R7
+			
 			end		; Termina el programa

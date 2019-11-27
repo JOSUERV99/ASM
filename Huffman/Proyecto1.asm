@@ -41,7 +41,7 @@ _start:
         ; Calcula la direccion del nodo que se esta guarda
         get_node_addr rcx, NODE_TREE, tree
         mov r8, rax
-
+        
         ; Ordena los datos del nodo
         mov eax, ecx                        ; Se calcula el inicio de la frecuencia del nodo
         mov ebx, 0x04
@@ -150,7 +150,7 @@ _start:
         mov rax, [rax + 0x15]
         
         ; Imprime el arbol, envia la direccion donde inicia
-        ;call_print_tree rax, 1
+        call_print_tree rax, 1
         
         ; Se prepara para recibir codigos
         infiteLoop:
@@ -186,6 +186,9 @@ read_code:
         cmp bl, 0x0
         je retRead
         
+        cmp bl, 0xa
+        je retRead
+
         ; Revisa asi a donde se tiene que mover
         cmp bl, 0x30
         je moveLeft

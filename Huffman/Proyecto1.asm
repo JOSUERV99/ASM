@@ -150,7 +150,7 @@ _start:
         mov rax, [rax + 0x15]
         
         ; Imprime el arbol, envia la direccion donde inicia
-        call_print_tree rax, 1
+        ;call_print_tree rax, 1
         
         ; Se prepara para recibir codigos
         infiteLoop:

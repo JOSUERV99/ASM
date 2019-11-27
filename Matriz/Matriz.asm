@@ -2,6 +2,7 @@
 
 SECTION .data
 
+    msg: db "Ingrese un numero: ", 0
     menos: db "-", 0            ; Simbolo de menos
     matrix dd 9118.02, 4925.17, 8500.04, 1228.99, 4416.41, 4562.18, 6651.30, 2784.27, 3991.19, 4960.10, 5147.16, 2518.05, 8482.56, 1636.87, 5881.76, 2544.98
     ; -135816143699968
@@ -14,10 +15,16 @@ SECTION .data
     
     size equ 0x04           ; Tamano de la matriz
     vecesLlamado dd 0       ; Cantidad de veces llamada la funcion principal
+
+    temp_num: dd 0
+    diez: dd 10.0
+    cantidadValores: dd 16
     
 SECTION .bss
+    ;matrix resb 64
     temp resb 1088          ; Cantidad de espacio disponible para las matrices
     result resq 1           ; Discriminante final
+    buffer resb 8
 
 SECTION .text
     global _start
@@ -25,9 +32,15 @@ SECTION .text
 _start:
 
     finit                           ; Limpia los registros de punto flotante
+    ;mov r14, 0
+
+    ;loopCargar:    
+    ;    call string_to_fp
+    ;    inc r14
+    ;    cmp r14, 16
+    ;    jne loopCargar
     
-    ; TODO: Solicitar los numeros al usuario
-    
+    finit
     callDeterminate matrix, size    ; Obtiene el discriminate
     
     ; Carga el resultado en el rax
@@ -49,6 +62,86 @@ _start:
         print_digit rax
     
     exit                        ; Termina el programa
+
+; Convierte una string en un numero flotante
+string_to_fp:
+
+    ; Lee la entrada del usuario (flotante en string)
+    print_string msg
+    mov rax, 3
+    mov rbx, 0
+    mov rcx, buffer
+    mov rdx, 8
+    int 0x80
+
+    finit
+
+    ; Limpiamos los registro rbx para la letra y rcx para el contador
+    xor rbx, rbx
+    xor rcx, rcx
+
+    ; Cargamos un 0 para numeros
+    fldz
+
+    loopEntero:
+
+        ; Obtiene la letra actual
+        mov bl, [buffer + ecx]
+        inc cx
+
+        ; Revisa si es un numero valida
+        cmp bl, 0
+        je siguiente
+        cmp bl, 10
+        je siguiente
+
+        ; Revisa si en punto
+        cmp bl, 46
+        je loop_decimal
+ 
+        ; Mutilicamos el numero actual por 10
+        fmul dword [diez]
+
+        sub bl, '0'
+        mov [temp_num], bx
+        fiadd dword [temp_num]
+
+        jmp loopEntero
+
+        ; Salta el decimal
+        loop_decimal:
+            fldz
+            jmp loopDecimal
+
+    loopDecimal:
+
+        ; Obtiene la letra actual
+        mov bl, [buffer + ecx]
+        inc cx
+
+        sub bl, '0'
+        mov [temp_num], bx
+        fiadd dword [temp_num]
+        fdiv dword [diez]
+
+        mov bl, [buffer + ecx]
+
+        sub bl, '0'
+        mov [temp_num], bx
+        fild dword [temp_num]
+        fdiv dword [diez]
+        fdiv dword [diez]
+        fadd
+        fadd
+    
+    siguiente:
+        mov r11, 4
+        mov rax, r14
+        mul r11
+        
+        fstp dword [matrix + rax]
+        ret
+
 
 ; Calcula el determinate de una funcion
 ; [rsp + 0x08]    Direccion de temp
